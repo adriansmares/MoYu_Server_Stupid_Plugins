@@ -93,8 +93,8 @@ stock ConVar CreateConVarHook(const char[] name,
 	
 	Call_StartFunction(INVALID_HANDLE, callback);
 	Call_PushCell(cv);
-	Call_PushNullString();
-	Call_PushNullString();
+	Call_PushString("");
+	Call_PushString("");
 	Call_Finish();
 	
 	cv.AddChangeHook(callback);
