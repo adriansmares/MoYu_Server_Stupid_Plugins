@@ -23,18 +23,18 @@ methodmap CountdownTimer
 	}
 
 	property float m_duration {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(4), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(4), NumberType_Int32); }
 	}
 
 	property float m_timestamp {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(8), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(8), NumberType_Int32); }
 	}
 }
 
 methodmap CUserCmd
 {
 	property int tick_count {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(8), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(8), NumberType_Int32); }
 	}
 }
 
@@ -43,10 +43,10 @@ int g_iOffs_m_isCurrentlyDoingCompensation;
 methodmap CLagCompensationManager
 {
 	property Address m_pCurrentPlayer {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(g_iOffs_m_pCurrentPlayer), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_m_pCurrentPlayer), NumberType_Int32); }
 	}
 	property bool m_isCurrentlyDoingCompensation {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(g_iOffs_m_isCurrentlyDoingCompensation), NumberType_Int8); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_m_isCurrentlyDoingCompensation), NumberType_Int8); }
 	}
 }
 CLagCompensationManager g_LagCompensationManager;
@@ -88,7 +88,7 @@ methodmap GameDataWrapper < GameData {
 public void OnPluginStart()
 {
 	GameDataWrapper gd = new GameDataWrapper("l4d_lagcomp_skeet");
-	g_LagCompensationManager = view_as<CLagCompensationManager>(gd.GetAddress("g_LagCompensationManager"));
+	g_LagCompensationManager = view_as<CLagCompensationManager>(view_as<int>(gd.GetAddress("g_LagCompensationManager")));
 	g_iOffs_m_pCurrentPlayer = gd.GetOffset("CLagCompensationManager::m_pCurrentPlayer");
 	g_iOffs_m_isCurrentlyDoingCompensation = gd.GetOffset("CLagCompensationManager::m_isCurrentlyDoingCompensation");
 	delete gd.CreateDetourOrFail("CTerrorPlayer::OnTakeDamageInternal", DTR_OnTakeDamageInternal, DTR_OnTakeDamageInternal_Post);
@@ -238,7 +238,7 @@ CountdownTimer GetLungeCooldownTimer(int ability)
 	if (s_iOffs_m_lungeCooldownTimer == -1)
 		s_iOffs_m_lungeCooldownTimer = FindSendPropInfo("CLunge", "m_isLunging") + 4;
 
-	return view_as<CountdownTimer>(GetEntityAddress(ability) + view_as<Address>(s_iOffs_m_lungeCooldownTimer));
+	return view_as<CountdownTimer>(view_as<int>(GetEntityAddress(ability) + view_as<Address>(s_iOffs_m_lungeCooldownTimer)));
 }
 
 CUserCmd GetPlayerCurrentCommand(int player)

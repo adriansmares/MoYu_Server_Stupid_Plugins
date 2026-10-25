@@ -94,13 +94,13 @@ methodmap CDirector {
 		SDKCall(g_CallOnBeginTransition, this, bTransitionToNextMap);
 	}
 	property IntervalTimer m_mapDurationTimer {
-		public get() { return view_as<IntervalTimer>(view_as<Address>(this) + view_as<Address>(g_iOffs_m_mapDurationTimer)); }
+		public get() { return view_as<IntervalTimer>(view_as<int>(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_m_mapDurationTimer))); }
 	}
 	property float m_flTotalMissionElaspedTime {
-		public set(float flTotalMissionElaspedTime) { StoreToAddress(view_as<Address>(this) + view_as<Address>(g_iOffs_m_flTotalMissionElaspedTime), flTotalMissionElaspedTime, NumberType_Int32); }
+		public set(float flTotalMissionElaspedTime) { StoreToAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_m_flTotalMissionElaspedTime), flTotalMissionElaspedTime, NumberType_Int32); }
 	}
 	property Address m_szOriginalMap {
-		public get() { return view_as<Address>(this) + view_as<Address>(g_iOffs_m_szOriginalMap); }
+		public get() { return view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_m_szOriginalMap); }
 	}
 	public bool IsTransitioning() {
 		return LoadFromAddress(gp_m_isTransitioning, NumberType_Int8);
@@ -143,7 +143,7 @@ public void OnPluginStart()
 
 public void OnAllPluginsLoaded()
 {
-	TheDirector = view_as<CDirector>(L4D_GetPointer(POINTER_DIRECTOR));
+	TheDirector = view_as<CDirector>(view_as<int>(L4D_GetPointer(POINTER_DIRECTOR)));
 	if (!TheDirector)
 	{
 		LogError("Failed to retrieve TheDirector pointer from left4dhooks");

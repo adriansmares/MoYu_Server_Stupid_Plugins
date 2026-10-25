@@ -23,14 +23,13 @@ public Plugin myinfo =
 #define	MAX_EDICT_BITS 11
 #define	MAX_EDICT_MASK ((1 << MAX_EDICT_BITS) - 1)
 
-methodmap Address {}
 
 Handle g_call_KeyValues_GetInt;
 Handle g_call_KeyValues_SetInt;
 Handle g_call_KeyValues_FindKey;
 Handle g_call_KeyValues_GetName;
 int g_offs_KeyValues_m_pPeer;
-methodmap KeyValuesPtr < Address
+methodmap KeyValuesPtr
 {
 	public int GetInt(const char[] key, int defValue = 0) {
 		return SDKCall(g_call_KeyValues_GetInt, this, key, defValue);
@@ -39,10 +38,10 @@ methodmap KeyValuesPtr < Address
 		SDKCall(g_call_KeyValues_SetInt, this, key, value);
 	}
 	public KeyValuesPtr GetFirstSubKey() {
-		return LoadFromAddress(this + view_as<Address>(g_offs_KeyValues_m_pPeer + 4), NumberType_Int32);
+		return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_offs_KeyValues_m_pPeer + 4), NumberType_Int32);
 	}
 	public KeyValuesPtr GetNextKey() {
-		return LoadFromAddress(this + view_as<Address>(g_offs_KeyValues_m_pPeer), NumberType_Int32);
+		return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_offs_KeyValues_m_pPeer), NumberType_Int32);
 	}
 	public KeyValuesPtr FindKey(const char[] key, bool bCreate = false) {
 		return SDKCall(g_call_KeyValues_FindKey, this, key, bCreate);
@@ -55,11 +54,11 @@ methodmap KeyValuesPtr < Address
 methodmap CUtlVector
 {
 	property Address m_pElements {
-		public get() { return LoadFromAddress(view_as<Address>(this), NumberType_Int32); }
+		public get() { return LoadAddressFromAddress(view_as<Address>(view_as<int>(this))); }
 	}
 
 	property int m_Size {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(12), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(12), NumberType_Int32); }
 	}
 }
 CUtlVector g_SavedPropPhysics;		// (L4D2 only) CUtlVector<SavedEntity>
@@ -115,10 +114,10 @@ public void OnPluginStart()
 
 	if (g_bL4D2)
 	{
-		g_SavedPropPhysics = view_as<CUtlVector>(gd.GetAddress("g_SavedPropPhysics"));
+		g_SavedPropPhysics = view_as<CUtlVector>(view_as<int>(gd.GetAddress("g_SavedPropPhysics")));
 	}
-	g_SavedWeapons = view_as<CUtlVector>(gd.GetAddress("g_SavedWeapons"));
-	g_SavedWeaponSpawns = view_as<CUtlVector>(gd.GetAddress("g_SavedWeaponSpawns"));
+	g_SavedWeapons = view_as<CUtlVector>(view_as<int>(gd.GetAddress("g_SavedWeapons")));
+	g_SavedWeaponSpawns = view_as<CUtlVector>(view_as<int>(gd.GetAddress("g_SavedWeaponSpawns")));
 
 	SDKCallParamsWrapper params[] = {
 		{SDKType_String, SDKPass_Pointer},
@@ -169,7 +168,7 @@ void HookSavedEntities(CUtlVector vec, bool isPtr)
 	for (int i = vec.m_Size-1; i >= 0; --i)
 	{
 		Address pSavedEntity = isPtr ?
-						LoadFromAddress(vec.m_pElements + view_as<Address>(4 * i), NumberType_Int32) :
+						LoadAddressFromAddress(vec.m_pElements + view_as<Address>(4 * i)) :
 						(vec.m_pElements + view_as<Address>(8 * i));
 
 		int hookid = g_hook_PostSpawn.HookRaw(Hook_Post, pSavedEntity, Hook_SavedEntity_PostSpawnPost);
@@ -408,7 +407,7 @@ MRESReturn DTR_PlayerSaveData_Post(Address pThis, DHookParam hParams)
 		return MRES_Ignored;
 
 	KeyValuesPtr pKV = LoadFromAddress(pThis, NumberType_Int32);
-	if (pKV == Address_Null)
+	if (view_as<int>(pKV) == 0)
 		return MRES_Ignored;
 
 	int client = hParams.Get(1);
@@ -425,7 +424,7 @@ MRESReturn DTR_PlayerSaveData_Post(Address pThis, DHookParam hParams)
 	if (g_bL4D2)
 	{
 		char keyname[64];
-		for (KeyValuesPtr pSub = pKV.GetFirstSubKey(); pSub != Address_Null; pSub = pSub.GetNextKey())
+		for (KeyValuesPtr pSub = pKV.GetFirstSubKey(); view_as<int>(pSub) != 0; pSub = pSub.GetNextKey())
 		{
 			pSub.GetName(keyname, sizeof(keyname));
 			if (!strcmp(keyname, "weapon", false))
@@ -476,7 +475,7 @@ MRESReturn DTR_PlayerSaveData_Post(Address pThis, DHookParam hParams)
 		for (int weaponid = 1; weaponid < sizeof(WeaponAlias); ++weaponid)
 		{
 			KeyValuesPtr pSub = pKV.FindKey(WeaponAlias[weaponid], false);
-			if (pSub == Address_Null)
+			if (view_as<int>(pSub) == 0)
 				continue;
 			
 			int weapon = GetPlayerWeaponFromID(client, weaponid);
@@ -503,7 +502,7 @@ static ArrayList g_RestoredPlayerItem = null;
 MRESReturn DTR_PlayerSaveData_Restore(Address pThis, DHookParam hParams)
 {
 	KeyValuesPtr pKV = LoadFromAddress(pThis, NumberType_Int32);
-	if (pKV == Address_Null)
+	if (view_as<int>(pKV) == 0)
 		return MRES_Ignored;
 
 	g_bRestorePlayerData = true;
@@ -618,7 +617,7 @@ MRESReturn DTR_PlayerSaveData_Restore_Post(Address pThis, DHookParam hParams)
 		return MRES_Ignored;
 
 	KeyValuesPtr pKV = LoadFromAddress(pThis, NumberType_Int32);
-	if (pKV == Address_Null)
+	if (view_as<int>(pKV) == 0)
 		return MRES_Ignored;
 
 	int client = hParams.Get(1);

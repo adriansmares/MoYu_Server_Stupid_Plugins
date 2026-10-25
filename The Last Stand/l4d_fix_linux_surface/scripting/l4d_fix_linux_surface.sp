@@ -36,57 +36,56 @@ methodmap GameDataWrapper < GameData {
 	}
 }
 
-methodmap Address {}
 
 int g_iOffs_CCollisionBSPData__map_surfaces;
 int g_iOffs_CCollisionBSPData__numtextures;
 // int g_iOffs_CCollisionBSPData__map_texturenames;
 
-methodmap CRangeValidatedArray < Address
+methodmap CRangeValidatedArray
 {
 	public any At(int i, int size = 4)
 	{
-		return this.m_pArray + view_as<Address>(i*size);
+		return view_as<int>(this.m_pArray + view_as<Address>(i*size));
 	}
 
 	property Address m_pArray
 	{
-		public get() { return LoadFromAddress(this, NumberType_Int32); }
+		public get() { return LoadAddressFromAddress(view_as<Address>(view_as<int>(this))); }
 	}
 }
 
-methodmap CCollisionBSPData < Address
+methodmap CCollisionBSPData
 {
 	property CRangeValidatedArray map_surfaces
 	{
-		public get() { return view_as<CRangeValidatedArray>(this + view_as<Address>(g_iOffs_CCollisionBSPData__map_surfaces)); }
+		public get() { return view_as<CRangeValidatedArray>(view_as<int>(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_CCollisionBSPData__map_surfaces))); }
 	}
 
 	// property Address map_texturenames
 	// {
-	// 	public get() { return LoadFromAddress(this + view_as<Address>(g_iOffs_CCollisionBSPData__map_texturenames), NumberType_Int32); }
+	// 	public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_CCollisionBSPData__map_texturenames), NumberType_Int32); }
 	// }
 
 	property int numtextures
 	{
-		public get() { return LoadFromAddress(this + view_as<Address>(g_iOffs_CCollisionBSPData__numtextures), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(g_iOffs_CCollisionBSPData__numtextures), NumberType_Int32); }
 	}
 }
 
-methodmap CSurface_t < Address
+methodmap CSurface_t
 {
 	property Address name
 	{
-		public get() { return LoadFromAddress(this, NumberType_Int32); }
+		public get() { return LoadAddressFromAddress(view_as<Address>(view_as<int>(this))); }
 	}
 	property int surfaceProps
 	{
-		public get() { return LoadFromAddress(this + view_as<Address>(4), NumberType_Int16); }
-		public set(int surfaceProps) { StoreToAddress(this + view_as<Address>(4), surfaceProps, NumberType_Int16); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(4), NumberType_Int16); }
+		public set(int surfaceProps) { StoreToAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(4), surfaceProps, NumberType_Int16); }
 	}
 	property int flags
 	{
-		public get() { return LoadFromAddress(this + view_as<Address>(6), NumberType_Int16); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(6), NumberType_Int16); }
 	}
 }
 CCollisionBSPData g_BSPData;
@@ -105,7 +104,7 @@ public void OnPluginStart()
 {
 	GameDataWrapper gd = new GameDataWrapper("l4d_fix_linux_surface");
 
-	g_BSPData = view_as<CCollisionBSPData>(gd.GetAddress("g_BSPData"));
+	g_BSPData = view_as<CCollisionBSPData>(view_as<int>(gd.GetAddress("g_BSPData")));
 	g_iOffs_CCollisionBSPData__map_surfaces = gd.GetOffset("CCollisionBSPData::map_surfaces");
 	g_iOffs_CCollisionBSPData__numtextures = gd.GetOffset("CCollisionBSPData::numtextures");
 	// g_iOffs_CCollisionBSPData__map_texturenames = gd.GetOffset("CCollisionBSPData::map_texturenames");
