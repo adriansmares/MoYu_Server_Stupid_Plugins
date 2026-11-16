@@ -270,7 +270,7 @@ void ClearHookIDs()
 
 void CallOnBeginSaveEntities(int info_changelevel)
 {
-	if (g_fwdOnEntityTransitioned.FunctionCount == 0)
+	if (g_fwdOnBeginSaveEntities.FunctionCount == 0)
 		return;
 	
 	Call_StartForward(g_fwdOnBeginSaveEntities);
